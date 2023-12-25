@@ -4,12 +4,12 @@ from flask_mysqldb import MySQL
 
 app = Flask(__name__)
 
-#app.config['MYSQL_HOST'] = 'localhost'
-#app.config['MYSQL_USER'] = 'root'
-#app.config['MYSQL_PASSWORD'] = ''
-#app.config['MYSQL_DB'] = 'text_editor'
-#
-#mysql = MySQL(app)
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'Mysql1475963!@#'
+app.config['MYSQL_DB'] = 'text_editor'
+
+mysql = MySQL(app)
 
 user1 = {"user_id" : "1","username" : "asd" , "pword": "asd"}  # Store users {username: password}
 user2 = {"user_id" : "2","username" : "qwe" , "pword": "qwe"} 
@@ -25,6 +25,13 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         pword = request.form['password']
+        # use cursor to execute sql query, get user and password
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM users WHERE username=%s;", (username,))
+
+        row = cursor.fetchone()
+        cursor.close()
+        print(row)
         if user_exist(users,username,pword):   
             return redirect(url_for('manage', username=username))
         else:
