@@ -68,3 +68,14 @@ a{
 .showpw{
     margin-bottom: 10px;
 }
+
+.center{
+    text-align: center;
+    font-size: 25px;
+    display: block;
+    margin: 50px auto;
+}
+
+h2[class="center"]{
+    font-size: 50px;
+}

@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    <h1>Online Text Editor</h1>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='loginform.css') }}">
 </head>
 <body>
+    <h1>Online Text Editor</h1>
     <form class="form-container" action="/signup" method="post">
         <h2>Sign Up</h2>
         <div>
@@ -37,5 +37,21 @@
         <button type="submit">Create Account</button>
         <a href="{{ url_for('login') }}">Already have an account? Sign in</a>
     </form>
+
+    <script>
+        const checkbox = document.getElementById('showPassword');
+        const password = document.getElementById('password');
+        const confirm = document.getElementById('confirm');
+
+        checkbox.addEventListener('change', function () {
+        if (checkbox.checked) {
+            password.type = 'text';
+            confirm.type = 'text';
+        } else {
+            password.type = 'password';
+            confirm.type = 'password';
+        }
+        });
+    </script>
 </body>
 </html>
