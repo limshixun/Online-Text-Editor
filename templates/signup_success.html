@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <h1>Online Text Editor</h1>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='loginform.css') }}">
+</head>
+<body>
+    <form class="form-container" action="/signup_success" method="post">
+        <h2>Sign Up Successful!</h2>
+        <button type="submit">Return to Sign In Page</button>
+    </form>
+</body>
+</html>

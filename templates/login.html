@@ -4,17 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log in</title>
+    <h1>Online Text Editor</h1>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='loginform.css') }}">
 </head>
 <body>
-    <form action="/" method="post">
-        <br>
-        <p>Username:</p>
-        <input id="username" name="username" required>
-        <br>
-        <p>Password:</p>
-        <input id="password" name="password" required>
-        <br>
+    <form class="form-container" action="/" method="post">
+        <h2>Sign In</h2>
+        <div>
+            <label>Username</label> 
+            <br>
+            <input type="text" id="username" name="username" autocomplete="on" required>
+        </div>
+        <div>
+            <label>Password</label>
+            <br>
+            <input type="password" id="password" name="password" autocomplete="off" required>
+            <br>
+            {% if message %}
+            <label class="error">{{ message }}</label> <!-- Display the error message -->
+            {% endif %}
+        </div>
+        <div class="showpw">
+            <input type="checkbox" id="showPassword">
+            <label for="showPassword">Show Password</label>
+        </div>
         <button type="submit">Log in</button>
+        <a href="{{ url_for('signup') }}">Don't have an account? Sign up</a>
     </form>
 </body>
 </html>

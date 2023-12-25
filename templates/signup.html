@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <h1>Online Text Editor</h1>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='loginform.css') }}">
+</head>
+<body>
+    <form class="form-container" action="/signup" method="post">
+        <h2>Sign Up</h2>
+        <div>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" autocomplete="on" required>
+            {% if nameError %}
+            <label class="error">{{ nameError }}</label>
+            {% endif %}
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="off" required>
+            <label id="passwordError" class="error"></label>
+            <br>
+            <label>Confirm Password:</label>
+            <input type="password" id="confirm" name="confirm" autocomplete="off" required>
+            <label id="confirmError" class="error"></label>
+            <br>
+            {% if pwError %}
+            <label class="error">{{ pwError }}</label> 
+            {% endif %}
+        </div>
+        <div class="showpw">
+            <input type="checkbox" id="showPassword">
+            <label for="showPassword">Show Password</label>
+        </div>
+        <button type="submit">Create Account</button>
+        <a href="{{ url_for('login') }}">Already have an account? Sign in</a>
+    </form>
+</body>
+</html>
