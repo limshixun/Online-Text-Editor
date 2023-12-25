@@ -19,8 +19,8 @@
             <tbody>
                 {% for doc in documents %}
                     <tr>
-                        <td><input type="checkbox" name="{{doc['title']}}" id="{{doc['id']}}"></td>
-                        <td>{{doc["title"]}}</td>
+                        <td><input type="checkbox" name="{{doc[1]}}" id="{{doc[0]}}"></td>
+                        <td>{{doc[1]}}</td>
                     </tr>
                 {% endfor %}
             </tbody>

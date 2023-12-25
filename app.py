@@ -11,47 +11,40 @@ app.config['MYSQL_DB'] = 'text_editor'
 
 mysql = MySQL(app)
 
-user1 = {"user_id" : "1","username" : "asd" , "pword": "asd"}  # Store users {username: password}
-user2 = {"user_id" : "2","username" : "qwe" , "pword": "qwe"} 
-document1 = {"id" : "101", "title" : "testing1", "user_id" : "1"}  # Store documents {document_id: {title, content, comments}}
-document2 = {"id" : "102", "title" : "testing2", "user_id" : "1"} 
-document3 = {"id" : "103", "title" : "testing3", "user_id" : "2"} 
-
-users = [user1,user2]
-documents = [document1,document2,document3]
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
+    # IF post request
     if request.method == 'POST':
+        # fetch the user input from html
         username = request.form['username']
         pword = request.form['password']
+
         # use cursor to execute sql query, get user and password
         cursor = mysql.connection.cursor()
         cursor.execute("SELECT * FROM users WHERE username=%s;", (username,))
-
-        row = cursor.fetchone()
+        user_row = cursor.fetchone()
         cursor.close()
-        print(row)
-        if user_exist(users,username,pword):   
-            return redirect(url_for('manage', username=username))
+
+        print(user_row)
+
+        # If there is no row with the entered username
+        if user_row:
+            db_user_id = user_row[0]
+            db_name = user_row[1]
+            db_pword = user_row[2]
+
+            if (username == db_name) & (pword == db_pword):
+                # user redirect to send user to a different page, while use render_template to render content for a page, url will not change when render_template
+                return redirect(url_for('manage', user_id=db_user_id))
         else:
-            return render_template('login.html', message='Invalid credentials')
-    return render_template('login.html', message='')
+            return render_template('login.html', message='Invalid Username')
 
+    # IF Get request      
+    return render_template('login.html', message='Login')
 
-@app.route('/manage', methods=['GET', 'POST'])
-def manage():
-    return render_template('manage.html',documents=documents)
-
-##@app.route('/text_editor/<username>', methods=['GET', 'POST'])
-##def text_editor(username):
-##    if request.method == 'POST':
-##        title = request.form['title']
-##        content = request.form['content']
-##        document_id = len(documents) + 1
-##        documents[document_id] = {'title': title, 'content': content, 'username': username, 'comments': []}
-##        return redirect(url_for('text_editor', username=username))
-##    return render_template('text_editor.html')
+@app.route('/manage/<user_id>', methods=['GET', 'POST'])
+def manage(user_id):
+    return render_template('manage.html',documents=getDocRows(user_id))
 
 def user_exist(users,name,pword):
     for user in users:
@@ -63,6 +56,14 @@ def user_exist(users,name,pword):
             return False
         
 
+def getDocRows(user_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM documents WHERE user_id=%s;", (user_id,))
+    doc_rows = cursor.fetchall()
+    cursor.close()
+    return doc_rows
+
 if __name__ == '__main__':
     app.run(debug=True)
     #app.run(debug=True,host='localhost',port=5000)
+
