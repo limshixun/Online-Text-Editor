@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Text Editor</title>
+    <!-- Include Quill text editor CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <div id="editor">
+        <!-- Text editor will be loaded here -->
+    </div>
+
+    <!-- Include Quill text editor JavaScript -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+    <script>
+        var quill = new Quill('#editor', {
+            theme: 'snow' // Use the 'snow' theme for a simple toolbar
+        });
+
+        // Get text content on form submit
+        function getText() {
+            var text = quill.root.innerHTML;
+            alert(text); // You can send this text to the server using AJAX or a form
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Document List</h1>
+    <br>
+    <form id="manageDoc" method="post" action="/">
+        <table>
+            <thead>
+                <tr>
+                    <th>cbox</th>
+                    <th>Title</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                    <tr>
+                        <td><input type="checkbox" name="{{doc['title']}}" id="{{doc['id']}}"></td>
+                        <td>{{doc["title"]}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</body>
+</html>
