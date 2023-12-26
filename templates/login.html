@@ -8,7 +8,7 @@
 </head>
 <body>
     <h1>Online Text Editor</h1>
-    <form class="form-container" action="/" method="post">
+    <form class="form-container" action="/login" method="post">
         <h2>Sign In</h2>
         <div>
             <label>Username</label> 
@@ -21,12 +21,16 @@
             <input type="password" id="password" name="password" autocomplete="off" required>
             <br>
             {% if message %}
-            <label class="error">{{ message }}</label> <!-- Display the error message -->
+            <label class="error">{{ message }}</label>
             {% endif %}
         </div>
-        <div class="showpw">
+        <div class="checkbox">
             <input type="checkbox" id="showPassword">
             <label for="showPassword">Show Password</label>
+        </div>
+        <div class="checkbox">
+            <input type="checkbox" id="remember_me" name="remember_me" value="True">
+            <label for="remember_me">Remember me for 30 days</label>
         </div>
         <button type="submit">Log in</button>
         <a href="{{ url_for('signup') }}">Don't have an account? Sign up</a>
