@@ -5,14 +5,15 @@ from flask_session import Session
 import bcrypt 
 
 app = Flask(__name__)
-# So that the session is stored under a folder, /flask_session
-app.config["SESSION_TYPE"] = "filesystem"
 # Allowing user to not login for 30days, sessio last 30days
-app.permanent_session_lifetime = timedelta(days=30)
+app.config["SESSION_PERMANENT"] = False
+# Secret key to encrypt or decrypt session data
+app.config["SESSION_TYPE"] = "filesystem"
+app.secret_key = "Secret_Key852"
+
 Session(app)
 
-# Secret key to encrypt or decrypt session data
-app.secret_key = "Secret_Key852"
+
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
@@ -61,13 +62,16 @@ def login():
         username = request.form['username']
         # turn password into bytes
         pword = request.form['password'].encode('utf-8')
+        
+        '''
         remember = request.form.get('remember_me')
 
         if remember:
             session.permanent = True
         else:
             session.permanent = False
-
+        '''
+        
         # Get the row with the same username as entered
         user_row = getUserRow(username)
 
@@ -94,6 +98,7 @@ def login():
 
 @app.route('/', methods=['GET', 'POST'])
 def manage():
+    print(session)
     # If a session exist
     if "user_id" in session:
 
@@ -103,7 +108,6 @@ def manage():
         if request.method == 'POST':
 
             if 'delete' in request.form:
-
                 selectedDocs = getSelectedDocs(user_id)
                 
                 print(selectedDocs)
@@ -114,8 +118,6 @@ def manage():
             elif 'logout' in request.form:
                 session.pop("user_id",None)
                 return redirect(url_for("login"))
-                
-
         
         return render_template('manage.html',documents=getDocRows(user_id))
     # If a session does not exist, redirect back to the login page.
@@ -123,8 +125,7 @@ def manage():
     # This way, 
     return redirect(url_for("login"))
 
-
-# Functions
+# Functions #
 def user_exist(users,name,pword):
     for user in users:
         if(user["username"] == name and user["pword"] == pword ):
@@ -185,4 +186,3 @@ def getSelectedDocs(user_id):
 if __name__ == '__main__':
     app.run(debug=True)
     #app.run(debug=True,host='localhost',port=5000)
-

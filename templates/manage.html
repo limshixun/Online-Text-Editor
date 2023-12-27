@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='manage.css') }}">
-    <title>Documents</title>
+    <title>{{username}}Documents</title>
 </head>
 <body>
     <h1>Document List</h1>
@@ -13,13 +13,15 @@
         <div class="menu">
             <input type="submit" name="create" id="create" value="Create new file">
             <input type="submit" name="delete" id="delete" value="Delete selected files">
-            <input type="submit" name="logout" id="logout" value="Log out">
+            <input class="warning" type="submit" name="logout" id="logout" value="Log out">
         </div>
         <table class="table-container">
             <thead>
                 <tr>
-                    <th>cbox</th>
+                    <th> </th>
                     <th>Title</th>
+                    <th>Date Modified</th>
+                    <th>Size</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +29,8 @@
                     <tr>
                         <td><input type="checkbox" name="{{doc[1]}}" id="{{doc[0]}}" value="{{doc[0]}}"></td>
                         <td>{{doc[1]}}</td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 {% endfor %}
             </tbody>
