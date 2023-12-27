@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from datetime import timedelta
+from datetime import timedelta, datetime
 from flask_mysqldb import MySQL
 from flask_session import Session
 import bcrypt 
@@ -105,19 +105,23 @@ def manage():
         # Get the user_id from session instead of parameter for security measurement
         user_id = session['user_id']
 
+
         if request.method == 'POST':
-
-            if 'delete' in request.form:
-                selectedDocs = getSelectedDocs(user_id)
-                
-                print(selectedDocs)
-            elif 'create' in request.form:
-
-                print(2)
             
+            if 'ConfirmDel' in request.form:
+                # selectedDocs = getSelectedDocs(user_id)
+                selectedDocs = request.form.get("doc_ids")
+
+                docs = selectedDocs.split(",")
+                delDoc(docs)
+
             elif 'logout' in request.form:
                 session.pop("user_id",None)
                 return redirect(url_for("login"))
+            
+            elif 'createDoc' in request.form:
+                docName = request.form.get('DocName')
+                addDoc(docName,user_id)
         
         return render_template('manage.html',documents=getDocRows(user_id))
     # If a session does not exist, redirect back to the login page.
@@ -173,15 +177,48 @@ def hash(pword):
 def getSelectedDocs(user_id):
     documents = getDocRows(user_id)
     # Store id for selected documents
-    selectedDocs = []
+    result = []
     for doc in documents:
-        doc_name = doc[1]
-        selectedDoc = request.form.get(doc_name)
+        doc_id = doc[0]
+        selectedDoc = request.form.get(doc_id)
         # Check if the currentDoc is selected or not, if not selected, will return nothing, else return the id
         if selectedDoc:
-            selectedDocs = selectedDocs + [selectedDoc]
+            result = result + [selectedDoc]
+    return result
 
-    return selectedDocs
+def addDoc(doc_name,user_id):
+    cursor = mysql.connection.cursor()
+    content = ""
+    size = KBOfString(content)
+    date_modified = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute("INSERT INTO documents (doc_name, user_id, date_modified, size, content) VALUES (%s,%s,%s,%s,%s)",(doc_name,user_id,date_modified,size,content))
+    # Update the table
+    mysql.connection.commit()
+    cursor.close
+
+def delDoc(doc_ids):
+    cursor = mysql.connection.cursor()
+
+    # Build a query to delete multiple rows at the same time
+    query = ""
+    for id in doc_ids:
+        query = query + "doc_id = " + id + " OR "
+
+    # remove the last OR
+    query = query.rstrip(" OR ")
+
+    # Build full query
+    full_query = f"DELETE FROM documents documents WHERE {query}"
+    cursor.execute(full_query)
+
+    # Update the table
+    mysql.connection.commit()
+    cursor.close
+
+# Return the size in byte of a string, use to calculate the size of content
+def KBOfString(str):
+    # Turn char into byte and calculate the lenght of it
+    return (len(str.encode('utf-8'))/1024)
 
 if __name__ == '__main__':
     app.run(debug=True)

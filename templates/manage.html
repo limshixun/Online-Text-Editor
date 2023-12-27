@@ -11,8 +11,8 @@
     <br>
     <form class="container" id="manageDoc" method="post" action="/">
         <div class="menu">
-            <input type="submit" name="create" id="create" value="Create new file">
-            <input type="submit" name="delete" id="delete" value="Delete selected files">
+            <button type="button" onclick="openPopup('cre')">Create new file</button>
+            <button type="button" onclick="openPopup('del')">Delete selected files</button>
             <input class="warning" type="submit" name="logout" id="logout" value="Log out">
         </div>
         <table class="table-container">
@@ -21,20 +21,78 @@
                     <th> </th>
                     <th>Title</th>
                     <th>Date Modified</th>
-                    <th>Size</th>
+                    <th>Size (KB)</th>
                 </tr>
             </thead>
             <tbody>
                 {% for doc in documents %}
                     <tr>
-                        <td><input type="checkbox" name="{{doc[1]}}" id="{{doc[0]}}" value="{{doc[0]}}"></td>
+                        <td><input type="checkbox" name="{{doc[0]}}" id="{{doc[0]}}" value="{{doc[0]}}"></td>
                         <td>{{doc[1]}}</td>
-                        <td></td>
-                        <td></td>
+                        <td>{{doc[3]}}</td>
+                        <td>{{doc[4]}}</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </form>
+
+    <div class="popup-container" id="cre-popup">
+        <form class="popup-form" method="post" action="/">
+            <h2>Create New Document</h2>
+            <label>Document name</label><br>
+            <input type="text" name="DocName" id="DocName" >
+            
+            <div>
+                <input type="submit" name="createDoc" id="createDoc" value="Create">
+                <button type="button" onclick="closePopup('cre')">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="popup-container" id="del-popup">
+        <form class="popup-form" method="post" action="/">
+            <h2>The selected documents will be delete PERMANENTLY</h2>
+            <input type="hidden" name="doc_ids" id="doc_ids" value="">
+            <div>
+                <input type="submit" name="ConfirmDel" id="ConfirmDel" value="Yes">
+                <button type="button" onclick="closePopup('del')">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let crePopup = document.getElementById("cre-popup")
+        let delPopup = document.getElementById("del-popup")
+        let checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        let doc_ids = document.getElementById("doc_ids")
+
+        function openPopup(type){
+            if (type == 'cre'){
+                crePopup.classList.add("open-popup")
+            }else if(type == 'del'){
+                let selectedDocs = []
+                checkboxes.forEach((checkbox) => {
+                if (checkbox.checked) {
+                    selectedDocs.push(checkbox.value);
+                }
+                });
+
+                console.log(selectedDocs)
+
+                doc_ids.value = selectedDocs
+
+                console.log(doc_ids.value)
+                delPopup.classList.add("open-popup")
+            }
+        }
+        function closePopup(type){
+            if (type == 'cre'){
+                crePopup.classList.remove("open-popup")
+            }else if(type == 'del'){
+                delPopup.classList.remove("open-popup")
+            }
+        }
+    </script>
 </body>
 </html>
