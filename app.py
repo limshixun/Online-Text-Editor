@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from datetime import timedelta, datetime
 from flask_mysqldb import MySQL
 from flask_session import Session
 import bcrypt 
+from io import BytesIO
 
 app = Flask(__name__)
 # Allowing user to not login for 30days, sessio last 30days
@@ -108,7 +109,6 @@ def manage():
             if 'ConfirmDel' in request.form:
                 # selectedDocs = getSelectedDocs(user_id)
                 selectedDocs = request.form.get("doc_ids")
-
                 docs = selectedDocs.split(",")
                 delDoc(docs)
 
@@ -120,11 +120,15 @@ def manage():
                 docName = request.form.get('DocName')
                 addDoc(docName,user_id)
         
-        return render_template('manage.html',documents=getDocRows(user_id))
+        return render_template('manage.html',documents=getDocRows("user_id",user_id))
     # If a session does not exist, redirect back to the login page.
     # Session can be closed by closing the browser, or manually using code.
     # This way, 
     return redirect(url_for("login"))
+
+@app.route('/text_editor/<doc_id>',methods=['GET', 'POST'])
+def text_editor(doc_id):
+    return render_template("text_editor.html")
 
 # Functions #
 def user_exist(users,name,pword):
@@ -136,9 +140,10 @@ def user_exist(users,name,pword):
             print("NoUserExist")
             return False
 
-def getDocRows(user_id):
+def getDocRows(type,id):
     cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM documents WHERE user_id=%s;", (user_id,))
+    query = f"SELECT * FROM documents WHERE {type} = %s;"
+    cursor.execute(query, (id,))
     doc_rows = cursor.fetchall()
     cursor.close()
     return doc_rows
@@ -172,7 +177,7 @@ def hash(pword):
 
 # Get all the selected docs from
 def getSelectedDocs(user_id):
-    documents = getDocRows(user_id)
+    documents = getDocRows("user_id",user_id)
     # Store id for selected documents
     result = []
     for doc in documents:
@@ -195,7 +200,7 @@ def addDoc(doc_name,user_id):
 
 def delDoc(doc_ids):
     cursor = mysql.connection.cursor()
-
+    print(doc_ids)
     # Build a query to delete multiple rows at the same time
     query = ""
     for id in doc_ids:
@@ -206,6 +211,7 @@ def delDoc(doc_ids):
 
     # Build full query
     full_query = f"DELETE FROM documents documents WHERE {query}"
+    print(full_query)
     cursor.execute(full_query)
 
     # Update the table

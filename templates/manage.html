@@ -12,7 +12,7 @@
     <form class="container" id="manageDoc" method="post" action="/">
         <div class="menu">
             <button type="button" onclick="openPopup('cre')">Create new file</button>
-            <button class="btn-disabled" type="button" id="delBtn" onclick="openPopup('del')" disabled>Delete selected files</button>
+            <button class="btn-disabled warning" type="button" id="delBtn" onclick="openPopup('del')" disabled>Delete selected files</button>
             <input class="warning" type="submit" name="logout" id="logout" value="Log out">
         </div>
         <table class="table-container">
@@ -28,7 +28,7 @@
                 {% for doc in documents %}
                     <tr>
                         <td><input type="checkbox" name="{{doc[0]}}" id="{{doc[0]}}" value="{{doc[0]}}"></td>
-                        <td>{{doc[1]}}</td>
+                        <td><a class="file-link" href="{{ url_for('text_editor', doc_id=doc[0]) }}" target="_blank">{{ doc[1] }}</a></td>
                         <td>{{doc[3]}}</td>
                         <td>{{doc[4]}}</td>
                     </tr>
@@ -72,18 +72,9 @@
                 crePopup.classList.add("open-popup")
 
             }else if(type == 'del'){
-                let selectedDocs = []
-                checkboxes.forEach((checkbox) => {
-                if (checkbox.checked) {
-                    selectedDocs.push(checkbox.value);
-                }
-                });
 
-                console.log(selectedDocs)
-
-                doc_ids.value = selectedDocs
-
-                console.log(doc_ids.value)
+                doc_ids.value = getSelectedDocs(checkboxes)
+    
                 delPopup.classList.add("open-popup")
             }
         }
@@ -95,6 +86,18 @@
             }
         }
 
+        // Return all the checked checkboxes' doc_id
+        function getSelectedDocs(checkboxes) {
+            let selectedDocs = [];
+            checkboxes.forEach((checkbox) => {
+                if (checkbox.checked) {
+                    selectedDocs.push(checkbox.value);
+                }
+            });
+
+            return selectedDocs;
+        }
+
         // If there is any checkbox is checked, return true, to enable del button
         function isCheck(checkboxes) {
         for (let i = 0; i < checkboxes.length; i++) {
@@ -103,24 +106,31 @@
             }
         }
         return false;
-}
+        }
 
         // Function to enable/disable del button if any checkbox is checked
-        function enableDelBtn() {
+        function enableDelNDownBtn() {
             const delBtn = document.getElementById("delBtn");
+            // const downBtn = document.getElementById("downloadBtn")
             // Enable del btn if any checkbox is checked, vice versa
             if (isCheck(checkboxes)) {
                 delBtn.disabled = false; // Enable the button
                 delBtn.classList.remove("btn-disabled")
+
+                // downBtn.disabled = false; // Enable the button
+                // downBtn.classList.remove("btn-disabled")
             } else {
                 delBtn.disabled = true; // Disable the button
                 delBtn.classList.add("btn-disabled")
+
+                // downBtn.disabled = true; // Disable the button
+                // downBtn.classList.add("btn-disabled")
             }
         }
 
         // Add an event listener to checkboxes to update the delete button state
         checkboxes.forEach((checkbox) => {
-            checkbox.addEventListener("change", enableDelBtn);
+            checkbox.addEventListener("change", enableDelNDownBtn);
         });
 
     </script>
