@@ -12,7 +12,7 @@
     <form class="container" id="manageDoc" method="post" action="/">
         <div class="menu">
             <button type="button" onclick="openPopup('cre')">Create new file</button>
-            <button type="button" onclick="openPopup('del')">Delete selected files</button>
+            <button class="btn-disabled" type="button" id="delBtn" onclick="openPopup('del')" disabled>Delete selected files</button>
             <input class="warning" type="submit" name="logout" id="logout" value="Log out">
         </div>
         <table class="table-container">
@@ -70,6 +70,7 @@
         function openPopup(type){
             if (type == 'cre'){
                 crePopup.classList.add("open-popup")
+
             }else if(type == 'del'){
                 let selectedDocs = []
                 checkboxes.forEach((checkbox) => {
@@ -93,6 +94,35 @@
                 delPopup.classList.remove("open-popup")
             }
         }
+
+        // If there is any checkbox is checked, return true, to enable del button
+        function isCheck(checkboxes) {
+        for (let i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked) {
+                return true;
+            }
+        }
+        return false;
+}
+
+        // Function to enable/disable del button if any checkbox is checked
+        function enableDelBtn() {
+            const delBtn = document.getElementById("delBtn");
+            // Enable del btn if any checkbox is checked, vice versa
+            if (isCheck(checkboxes)) {
+                delBtn.disabled = false; // Enable the button
+                delBtn.classList.remove("btn-disabled")
+            } else {
+                delBtn.disabled = true; // Disable the button
+                delBtn.classList.add("btn-disabled")
+            }
+        }
+
+        // Add an event listener to checkboxes to update the delete button state
+        checkboxes.forEach((checkbox) => {
+            checkbox.addEventListener("change", enableDelBtn);
+        });
+
     </script>
 </body>
 </html>

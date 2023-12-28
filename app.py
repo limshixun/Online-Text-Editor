@@ -13,8 +13,6 @@ app.secret_key = "Secret_Key852"
 
 Session(app)
 
-
-
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'Mysql1475963!@#'
@@ -104,7 +102,6 @@ def manage():
 
         # Get the user_id from session instead of parameter for security measurement
         user_id = session['user_id']
-
 
         if request.method == 'POST':
             

@@ -122,3 +122,11 @@ th:nth-child(3){
     border-radius: 5px;
     font-size: large;
 }
+
+.btn-disabled{
+    background-color: gray !important;
+}
+
+.menu .btn-disabled:hover{
+    background-color: gray;
+}
