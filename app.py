@@ -119,7 +119,7 @@ def manage():
             elif 'createDoc' in request.form:
                 docName = request.form.get('DocName')
                 addDoc(docName,user_id)
-        
+
         return render_template('manage.html',documents=getDocRows("user_id",user_id))
     # If a session does not exist, redirect back to the login page.
     # Session can be closed by closing the browser, or manually using code.
@@ -128,7 +128,10 @@ def manage():
 
 @app.route('/text_editor/<doc_id>',methods=['GET', 'POST'])
 def text_editor(doc_id):
-    return render_template("text_editor.html")
+    doc = getDocRows("doc_id",doc_id)[0]
+    
+    
+    return render_template("text_editor.html", doc=doc)
 
 # Functions #
 def user_exist(users,name,pword):
@@ -141,6 +144,9 @@ def user_exist(users,name,pword):
             return False
 
 def getDocRows(type,id):
+    if type != "user_id" and type != "doc_id":
+        raise Exception("Please enter a valid id type, user_id or doc_id")
+
     cursor = mysql.connection.cursor()
     query = f"SELECT * FROM documents WHERE {type} = %s;"
     cursor.execute(query, (id,))

@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>text_editor</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='text_editor.css') }}">
 </head>
 <body>
-    
+    <div class="title">
+        <h1>Title : {{doc[1]}}</h2>
+    </div>
+    <div class="menubar flex">
+        <input class="box" type="image" src="../static/icon/save.png" alt="submit" name="save" id="save" value="save">
+        <input class="box" type="image" src="../static/icon/download.png" alt="submit" name="download" id="download" value="download">
+        <input class="box" type="submit" value="A+">
+        <input class="box" type="submit" value="A-">
+        <input class="box" type="submit" value="search">
+    </div>
+    <textarea class="content" autofocus></textarea>
 </body>
 </html>
