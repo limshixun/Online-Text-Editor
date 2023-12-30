@@ -7,16 +7,22 @@
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='text_editor.css') }}">
 </head>
 <body>
-    <div class="title">
-        <h1>Title : {{doc[1]}}</h2>
-    </div>
-    <div class="menubar flex">
-        <input class="box" type="image" src="../static/icon/save.png" alt="submit" name="save" id="save" value="save">
-        <input class="box" type="image" src="../static/icon/download.png" alt="submit" name="download" id="download" value="download">
-        <input class="box" type="submit" value="A+">
-        <input class="box" type="submit" value="A-">
-        <input class="box" type="submit" value="search">
-    </div>
-    <textarea class="content" autofocus></textarea>
+    <form class="container" id="editor" method="post" action="{{url_for('text_editor', doc_id=doc[0])}}">
+        <div class="title flex">
+            <h1>Title : {{doc[1]}}</h2>
+            <input class="warning" type="submit" name="logout" id="logout" value="Log out">
+        </div>
+        <div class="menubar flex">
+            <button class="box" type="submit" name="save" id="save"><img src="../static/icon/save.png"></button>
+            <button class="box" type="submit" name="download" id="download" ><img src="../static/icon/download.png"></button>
+            <input class="box" type="button" name="A+" id="A+" value="A+">
+            <input class="box" type="button" name="A-" id="A-" value="A-">
+            <input class="box" type="submit" value="search">
+        </div>
+        <textarea class="content" name="content" id="content" autofocus>{{doc[5]}}</textarea>
+    </form>
+    <script>
+
+    </script>
 </body>
 </html>

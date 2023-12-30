@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 from flask_session import Session
 import bcrypt 
 from io import BytesIO
+import os, time
 
 app = Flask(__name__)
 # Allowing user to not login for 30days, sessio last 30days
@@ -114,6 +115,7 @@ def manage():
 
             elif 'logout' in request.form:
                 session.pop("user_id",None)
+                clearTempFiles()
                 return redirect(url_for("login"))
             
             elif 'createDoc' in request.form:
@@ -128,10 +130,52 @@ def manage():
 
 @app.route('/text_editor/<doc_id>',methods=['GET', 'POST'])
 def text_editor(doc_id):
-    doc = getDocRows("doc_id",doc_id)[0]
-    
-    
-    return render_template("text_editor.html", doc=doc)
+    # If a session exist
+    if "user_id" in session:
+        
+        doc = getDocRows("doc_id",doc_id)[0]
+        if request.method == 'POST':
+            date_modified = getCurrentDateTime()
+            content = request.form.get("content")
+            print(content)
+            size = KBOfString(content)
+            if 'save' in request.form:
+                saveDoc(date_modified,size,content,doc_id)
+                # Get new updated doc
+                doc = getDocRows("doc_id",doc_id)[0]
+            elif 'logout' in request.form:
+                session.pop("user_id",None)
+                clearTempFiles()
+                return redirect(url_for("login"))
+            elif 'download' in request.form:
+                saveDoc(date_modified,size,content,doc_id)
+                filename = doc[1] + '.txt'
+                filepath = f"./temp/{filename}"
+                content = doc[5]
+
+                # Open the file, write and then close the file in 2 line
+                with open(filepath, "w") as fo:
+                    fo.write(content)
+                    fo.close()
+
+                return redirect(url_for("download",filepath=filepath))
+        return render_template("text_editor.html", doc=doc)
+    # If a session does not exist, redirect back to the login page.
+    # Session can be closed by closing the browser, or manually using code.
+    # This way, 
+    return redirect(url_for("login"))
+
+# Downlaod the file in the temp dir
+@app.route("/download/<path:filepath>", methods=['GET', 'POST'])
+def download(filepath):
+    print("Downloading: ", filepath)
+    return send_file(filepath, as_attachment=True)
+
+def saveDoc(date_modified,size,content,doc_id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE documents SET date_modified=%s,size=%s,content=%s WHERE doc_id=%s;", (date_modified,size,content,doc_id))
+    mysql.connection.commit()
+    cursor.close()
 
 # Functions #
 def user_exist(users,name,pword):
@@ -198,7 +242,7 @@ def addDoc(doc_name,user_id):
     cursor = mysql.connection.cursor()
     content = ""
     size = KBOfString(content)
-    date_modified = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    date_modified = getCurrentDateTime()
     cursor.execute("INSERT INTO documents (doc_name, user_id, date_modified, size, content) VALUES (%s,%s,%s,%s,%s)",(doc_name,user_id,date_modified,size,content))
     # Update the table
     mysql.connection.commit()
@@ -215,7 +259,7 @@ def delDoc(doc_ids):
     # remove the last OR
     query = query.rstrip(" OR ")
 
-    # Build full query
+    # Build the full query
     full_query = f"DELETE FROM documents documents WHERE {query}"
     print(full_query)
     cursor.execute(full_query)
@@ -228,6 +272,17 @@ def delDoc(doc_ids):
 def KBOfString(str):
     # Turn char into byte and calculate the lenght of it
     return (len(str.encode('utf-8'))/1024)
+
+def clearTempFiles():
+    dir = "./temp"
+    files = os.listdir(dir)
+    for f in files:
+        filepath = dir + "/" + f
+        os.remove(filepath)
+        print(filepath + " removed")
+
+def getCurrentDateTime():
+    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 if __name__ == '__main__':
     app.run(debug=True)
