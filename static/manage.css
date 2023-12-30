@@ -133,3 +133,20 @@ td a.file-link{
     text-decoration: none;
     color: #227dd9;
 }
+
+th button.box{
+    margin-left: auto;
+    background-color: transparent;
+    border: transparent;
+}
+
+th button.box img{
+    background-color: transparent;
+    border: transparent;
+    max-width: 20px;
+    max-height: 20px;
+}
+
+th button.box img:hover{
+    background-color: #e7e6e6e3;
+}

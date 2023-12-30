@@ -48,9 +48,7 @@ textarea.content{
     margin-bottom: 50px;
 }
 
-.title input:nth-child(2) {
-    margin-left: auto;
-    background-color: rgb(223, 30, 30);
+.title input{
     padding: 10px 20px;
     color: white;
     border: none;
@@ -60,7 +58,22 @@ textarea.content{
     box-shadow: 5px 5px 5px rgb(0, 0, 0,0.2);
 }
 
+.title input:nth-child(2){
+    background-color: #227dd9;
+    margin-left: 70%;
+}
+
+.title input:last-child {
+    margin-left: auto;
+    background-color: rgb(223, 30, 30);
+}
+
 .title input:nth-child(2):hover{
+    background-color: #0b519b;
+    margin-left: 70%;
+}
+
+.title input:last-child:hover{
     background-color: #9b0b0b;
 }
 

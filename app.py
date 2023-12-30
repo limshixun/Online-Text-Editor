@@ -79,13 +79,13 @@ def login():
         if user_row:
 
             # retrieve data from tuple
-            db_user_id, _, db_pword = user_row
+            _, _, db_pword = user_row
 
             # Check if user input password match the hashed pw in db
             if bcrypt.checkpw(pword,db_pword.encode('utf-8')):
 
                 # Inside the login function after successful authentication
-                session['user_id'] = db_user_id  # Store the user_id in the session
+                session['user'] = user_row  # Store the user_row in the session
 
                 # Password matches, redirect to manage page
                 return redirect(url_for('manage'))
@@ -100,11 +100,12 @@ def login():
 def manage():
     print(session)
     # If a session exist
-    if "user_id" in session:
+    if "user" in session:
 
         # Get the user_id from session instead of parameter for security measurement
-        user_id = session['user_id']
-
+        user_row = session['user']
+        user_id = user_row[0]
+        username = user_row[1]
         if request.method == 'POST':
             
             if 'ConfirmDel' in request.form:
@@ -122,7 +123,7 @@ def manage():
                 docName = request.form.get('DocName')
                 addDoc(docName,user_id)
 
-        return render_template('manage.html',documents=getDocRows("user_id",user_id))
+        return render_template('manage.html',documents=getDocRows("user_id",user_id), username=username)
     # If a session does not exist, redirect back to the login page.
     # Session can be closed by closing the browser, or manually using code.
     # This way, 
@@ -137,16 +138,18 @@ def text_editor(doc_id):
         if request.method == 'POST':
             date_modified = getCurrentDateTime()
             content = request.form.get("content")
-            print(content)
             size = KBOfString(content)
+
             if 'save' in request.form:
                 saveDoc(date_modified,size,content,doc_id)
                 # Get new updated doc
                 doc = getDocRows("doc_id",doc_id)[0]
+
             elif 'logout' in request.form:
                 session.pop("user_id",None)
                 clearTempFiles()
                 return redirect(url_for("login"))
+            
             elif 'download' in request.form:
                 saveDoc(date_modified,size,content,doc_id)
                 filename = doc[1] + '.txt'
@@ -159,6 +162,12 @@ def text_editor(doc_id):
                     fo.close()
 
                 return redirect(url_for("download",filepath=filepath))
+            
+            elif "home" in request.form:
+                return redirect(url_for(manage))
+            elif "rename" in request.form:
+                renameTitle(date_modified,size,content,,doc_id)
+
         return render_template("text_editor.html", doc=doc)
     # If a session does not exist, redirect back to the login page.
     # Session can be closed by closing the browser, or manually using code.
@@ -174,6 +183,12 @@ def download(filepath):
 def saveDoc(date_modified,size,content,doc_id):
     cursor = mysql.connection.cursor()
     cursor.execute("UPDATE documents SET date_modified=%s,size=%s,content=%s WHERE doc_id=%s;", (date_modified,size,content,doc_id))
+    mysql.connection.commit()
+    cursor.close()
+
+def renameTitle(date_modified,size,content,doc_id,doc_name):
+    cursor = mysql.connection.cursor()
+    cursor.execute("UPDATE documents SET date_modified=%s,size=%s,content=%s,doc_name=%s WHERE doc_id=%s;", (date_modified,size,content,doc_name,doc_id))
     mysql.connection.commit()
     cursor.close()
 

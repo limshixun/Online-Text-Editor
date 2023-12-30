@@ -10,19 +10,34 @@
     <form class="container" id="editor" method="post" action="{{url_for('text_editor', doc_id=doc[0])}}">
         <div class="title flex">
             <h1>Title : {{doc[1]}}</h2>
+            <input type="submit" name="home" id="home" value="HOME">
             <input class="warning" type="submit" name="logout" id="logout" value="Log out">
         </div>
         <div class="menubar flex">
             <button class="box" type="submit" name="save" id="save"><img src="../static/icon/save.png"></button>
             <button class="box" type="submit" name="download" id="download" ><img src="../static/icon/download.png"></button>
-            <input class="box" type="button" name="A+" id="A+" value="A+">
-            <input class="box" type="button" name="A-" id="A-" value="A-">
-            <input class="box" type="submit" value="search">
+            <button class="box" type="button" name="A+" id="A+" onclick="upFontSize()">A+</button>
+            <button class="box" type="button" name="A-" id="A-" onclick="downFontSize()">A-</button>
+            <input class="box" type="submit" name="rename" id="rename" value="rename">
         </div>
         <textarea class="content" name="content" id="content" autofocus>{{doc[5]}}</textarea>
     </form>
     <script>
+        let textarea = document.getElementById("content")
 
+        function changeFontSize(size){
+            textarea.style.fontSize = `${size}px`;
+        }
+        function upFontSize(){
+            let computedStyle = window.getComputedStyle(textarea);
+            let fontSize = parseInt(computedStyle.getPropertyValue("font-size"));
+            changeFontSize(fontSize+1)
+        }
+        function downFontSize(){
+            let computedStyle = window.getComputedStyle(textarea);
+            let fontSize = parseInt(computedStyle.getPropertyValue("font-size"));
+            changeFontSize(fontSize-1)
+        }
     </script>
 </body>
 </html>
