@@ -18,9 +18,22 @@
             <button class="box" type="submit" name="download" id="download" ><img src="../static/icon/download.png"></button>
             <button class="box" type="button" name="A+" id="A+" onclick="upFontSize()">A+</button>
             <button class="box" type="button" name="A-" id="A-" onclick="downFontSize()">A-</button>
-            <input class="box" type="submit" name="rename" id="rename" value="rename">
+            <input class="box" type="button" onclick="openPopup()" value="rename">
         </div>
         <textarea class="content" name="content" id="content" autofocus>{{doc[5]}}</textarea>
+
+        <div class="popup-container" id="cre-popup">
+            <div class="popup-form">
+                <h2>Change Document Name</h2>
+                <label>Document name</label><br>
+                <input type="text" name="DocName" id="DocName" required>
+                <p>When the name is changed, the document will also save automatically, do you want to continue?</p>
+                <div>
+                    <input type="submit" name="rename" id="rename" value="Yes">
+                    <button type="button" onclick="closePopup()">Cancel</button>
+                </div>
+            </div>
+        </div>
     </form>
     <script>
         let textarea = document.getElementById("content")
@@ -37,6 +50,16 @@
             let computedStyle = window.getComputedStyle(textarea);
             let fontSize = parseInt(computedStyle.getPropertyValue("font-size"));
             changeFontSize(fontSize-1)
+        }
+
+        let crePopup = document.getElementById("cre-popup")
+        let doc_ids = document.getElementById("doc_ids")
+
+        function openPopup(){
+            crePopup.classList.add("open-popup")   
+        }
+        function closePopup(type){
+            crePopup.classList.remove("open-popup")
         }
     </script>
 </body>

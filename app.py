@@ -164,9 +164,14 @@ def text_editor(doc_id):
                 return redirect(url_for("download",filepath=filepath))
             
             elif "home" in request.form:
-                return redirect(url_for(manage))
+                return redirect(url_for("manage"))
+            
             elif "rename" in request.form:
-                renameTitle(date_modified,size,content,,doc_id)
+                new_name = request.form.get("DocName")
+                print("asdasdaskdhgaofhjqbfasvofasuyvflasjhv")
+                renameTitle(date_modified, size, content, doc_id, new_name)
+                doc = getDocRows("doc_id",doc_id)[0]
+
 
         return render_template("text_editor.html", doc=doc)
     # If a session does not exist, redirect back to the login page.
