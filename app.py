@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
-from datetime import timedelta, datetime
+from datetime import datetime
 from flask_mysqldb import MySQL
 from flask_session import Session
-import bcrypt 
 from io import BytesIO
-import os, time
+import os, time, mysql.connector, bcrypt
 
 app = Flask(__name__)
+
 # Allowing user to not login for 30days, sessio last 30days
 app.config["SESSION_PERMANENT"] = False
 # Secret key to encrypt or decrypt session data
@@ -14,13 +14,6 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.secret_key = "Secret_Key852"
 
 Session(app)
-
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Mysql1475963!@#'
-app.config['MYSQL_DB'] = 'text_editor'
-
-mysql = MySQL(app)
 
 @app.route('/signup', methods=["GET","POST"])
 def signup():
@@ -109,7 +102,6 @@ def manage():
         if request.method == 'POST':
             
             if 'ConfirmDel' in request.form:
-                # selectedDocs = getSelectedDocs(user_id)
                 selectedDocs = request.form.get("doc_ids")
                 docs = selectedDocs.split(",")
                 delDoc(docs)
@@ -207,86 +199,143 @@ def user_exist(users,name,pword):
             print("NoUserExist")
             return False
 
-def getDocRows(type,id):
-    if type != "user_id" and type != "doc_id":
-        raise Exception("Please enter a valid id type, user_id or doc_id")
-
-    cursor = mysql.connection.cursor()
-    query = f"SELECT * FROM documents WHERE {type} = %s;"
-    cursor.execute(query, (id,))
-    doc_rows = cursor.fetchall()
-    cursor.close()
-    return doc_rows
-
-def getUserRow(username):
-    # use cursor to execute sql query, get user and password
-    cursor = mysql.connection.cursor()
-    cursor.execute("SELECT * FROM users WHERE username=%s;", (username,))
-    user_row = cursor.fetchone()
-    cursor.close()
-
-    if not user_row:
-        # Handle case when user doesn't exist
-        return None
-    return user_row
-
-# Will hash the password, and insert the username and hashed password into the users table
-def addUser(username,pword):
-    cursor = mysql.connection.cursor()
-    hashed = hash(pword)
-    cursor.execute("INSERT INTO users (username, pword) VALUES (%s,%s)",(username,hashed))
-    # Update the table
-    mysql.connection.commit()
-    cursor.close
-
 def hash(pword):
     # generate salt
     s = bcrypt.gensalt()
     # turn the password into byte
     return bcrypt.hashpw(pword.encode('utf-8'), salt=s)
 
-# Get all the selected docs from
-def getSelectedDocs(user_id):
-    documents = getDocRows("user_id",user_id)
-    # Store id for selected documents
-    result = []
-    for doc in documents:
-        doc_id = doc[0]
-        selectedDoc = request.form.get(doc_id)
-        # Check if the currentDoc is selected or not, if not selected, will return nothing, else return the id
-        if selectedDoc:
-            result = result + [selectedDoc]
-    return result
+def getDocRows(type,id):
+    try:
+        cnx = getConnection()
+    
+        if cnx.is_connected():
+            print("Connection Successful")
+
+            if type != "user_id" and type != "doc_id":
+                raise Exception("Please enter a valid id type, user_id or doc_id")
+
+            cursor = cnx.cursor()
+            query = f"SELECT * FROM documents WHERE {type} = %s;"
+            cursor.execute(query, (id,))
+            doc_rows = cursor.fetchall()
+            cursor.close()
+            return doc_rows
+        
+        else:
+            print("Connection Failed")
+    except mysql.connector.Error as e:
+        print("Database connection error: ", e)
+
+    finally:
+        closeConnection(cnx)
+
+def getUserRow(username):
+    cnx = None
+    try:    
+        cnx = getConnection()
+    
+        if cnx.is_connected():
+            print("Connection Successful")
+            # use cursor to execute sql query, get user and password
+            cursor = cnx.cursor()
+            cursor.execute("SELECT * FROM users WHERE username=%s;", (username,))
+            user_row = cursor.fetchone()
+            cursor.close()
+
+            if not user_row:
+                # Handle cases when user doesn't exist
+                return None
+            return user_row
+        
+        else:
+            print("Connection Failed")
+    except mysql.connector.Error as e:
+        print("Database connection error: ", e)
+        
+    finally:
+        closeConnection(cnx)
+        
+
+
+# Will hash the password, and insert the username and hashed password into the users table
+def addUser(username,pword):
+    try:
+        cnx = getConnection()
+    
+        if cnx.is_connected():
+            cursor = cnx.cursor()
+            hashed = hash(pword)
+            cursor.execute("INSERT INTO users (username, pword) VALUES (%s,%s)",(username,hashed))
+            # Update the table
+            cnx.commit()
+            cursor.close()
+        
+        else:
+            print("Connection Failed")
+    except mysql.connector.Error as e:
+        print("Database connection error: ", e)
+        
+    finally:
+        closeConnection(cnx)
 
 def addDoc(doc_name,user_id):
-    cursor = mysql.connection.cursor()
-    content = ""
-    size = KBOfString(content)
-    date_modified = getCurrentDateTime()
-    cursor.execute("INSERT INTO documents (doc_name, user_id, date_modified, size, content) VALUES (%s,%s,%s,%s,%s)",(doc_name,user_id,date_modified,size,content))
-    # Update the table
-    mysql.connection.commit()
-    cursor.close
+    try:
+        cnx = getConnection()
+    
+        if cnx.is_connected():
+            cursor = cnx.cursor()
+            content = ""
+            size = KBOfString(content)
+            date_modified = getCurrentDateTime()
+            cursor.execute("INSERT INTO documents (doc_name, user_id, date_modified, size, content) VALUES (%s,%s,%s,%s,%s)",(doc_name,user_id,date_modified,size,content))
+            
+            # Update the table
+            cnx.commit()
+            cursor.close
+            print("Document added successfully")
+        else:
+            print("Connection Failed")
+    except mysql.connector.Error as e:
+        print("Database connection error: ", e)
+        
+    finally:
+        closeConnection(cnx)
+
+
 
 def delDoc(doc_ids):
-    cursor = mysql.connection.cursor()
-    print(doc_ids)
-    # Build a query to delete multiple rows at the same time
-    query = ""
-    for id in doc_ids:
-        query = query + "doc_id = " + id + " OR "
+        try:
+            cnx = getConnection()
+        
+            if cnx.is_connected():
+                cursor = cnx.cursor()
+                print(doc_ids)
+                # Build a query to delete multiple rows at the same time
+                query = ""
+                for id in doc_ids:
+                    query = query + "doc_id = " + id + " OR "
 
-    # remove the last OR
-    query = query.rstrip(" OR ")
+                # remove the last OR
+                query = query.rstrip(" OR ")
 
-    # Build the full query
-    full_query = f"DELETE FROM documents documents WHERE {query}"
-    print(full_query)
-    cursor.execute(full_query)
+                # Build the full query
+                full_query = f"DELETE FROM documents WHERE {query}"
+                print(full_query)
+                cursor.execute(full_query)
 
-    # Update the table
-    mysql.connection.commit()
-    cursor.close
+                # Update the table
+                cnx.commit()
+                cursor.close
+            
+            else:
+                print("Connection Failed")
+        except mysql.connector.Error as e:
+            print("Database connection error: ", e)
+            
+        finally:
+            closeConnection(cnx)
+    
 
 # Return the size in byte of a string, use to calculate the size of content
 def KBOfString(str):
@@ -304,6 +353,19 @@ def clearTempFiles():
 def getCurrentDateTime():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+def getConnection():
+    try:
+        cnx = mysql.connector.connect(user="limshixun", password="Mysql1475963!@#", host="onlinete.mysql.database.azure.com",
+                                      port=3306, database="text_editor", ssl_ca="./cert/DigiCertGlobalRootCA.crt.pem", ssl_disabled=False)
+        return cnx
+    except mysql.connector.Error as e:
+        print("Database connection error: ", e)
+        return None
+
+def closeConnection(cnx):
+    if cnx:
+        cnx.close()
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True  )
     #app.run(debug=True,host='localhost',port=5000)
