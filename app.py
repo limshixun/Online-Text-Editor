@@ -1,9 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from datetime import datetime
-from flask_mysqldb import MySQL
 from flask_session import Session
-from io import BytesIO
-import os, time, mysql.connector, bcrypt
+import os, mysql.connector, bcrypt
 
 app = Flask(__name__)
 
@@ -124,7 +122,7 @@ def manage():
 @app.route('/text_editor/<doc_id>',methods=['GET', 'POST'])
 def text_editor(doc_id):
     # If a session exist
-    if "user_id" in session:
+    if "user" in session:
         
         doc = getDocRows("doc_id",doc_id)[0]
         if request.method == 'POST':
@@ -138,11 +136,12 @@ def text_editor(doc_id):
                 doc = getDocRows("doc_id",doc_id)[0]
 
             elif 'logout' in request.form:
-                session.pop("user_id",None)
+                session.pop("user",None)
                 clearTempFiles()
                 return redirect(url_for("login"))
             
             elif 'download' in request.form:
+                print("Starting download")
                 saveDoc(date_modified,size,content,doc_id)
                 filename = doc[1] + '.txt'
                 filepath = f"./temp/{filename}"
@@ -160,7 +159,6 @@ def text_editor(doc_id):
             
             elif "rename" in request.form:
                 new_name = request.form.get("DocName")
-                print("asdasdaskdhgaofhjqbfasvofasuyvflasjhv")
                 renameTitle(date_modified, size, content, doc_id, new_name)
                 doc = getDocRows("doc_id",doc_id)[0]
 
@@ -177,18 +175,6 @@ def download(filepath):
     print("Downloading: ", filepath)
     return send_file(filepath, as_attachment=True)
 
-def saveDoc(date_modified,size,content,doc_id):
-    cursor = mysql.connection.cursor()
-    cursor.execute("UPDATE documents SET date_modified=%s,size=%s,content=%s WHERE doc_id=%s;", (date_modified,size,content,doc_id))
-    mysql.connection.commit()
-    cursor.close()
-
-def renameTitle(date_modified,size,content,doc_id,doc_name):
-    cursor = mysql.connection.cursor()
-    cursor.execute("UPDATE documents SET date_modified=%s,size=%s,content=%s,doc_name=%s WHERE doc_id=%s;", (date_modified,size,content,doc_name,doc_id))
-    mysql.connection.commit()
-    cursor.close()
-
 # Functions #
 def user_exist(users,name,pword):
     for user in users:
@@ -204,6 +190,46 @@ def hash(pword):
     s = bcrypt.gensalt()
     # turn the password into byte
     return bcrypt.hashpw(pword.encode('utf-8'), salt=s)
+
+def saveDoc(date_modified,size,content,doc_id):
+
+    try:
+        cnx = getConnection()
+    
+        if cnx.is_connected():
+            print("Connection Successful")
+            cursor = cnx.cursor()
+            cursor.execute("UPDATE documents SET date_modified=%s,size=%s,content=%s WHERE doc_id=%s;", (date_modified,size,content,doc_id))
+            cnx.commit()
+            cursor.close()
+        
+        else:
+            print("Connection Failed")
+    except mysql.connector.Error as e:
+        print("Database connection error: ", e)
+
+    finally:
+        closeConnection(cnx)
+
+def renameTitle(date_modified,size,content,doc_id,doc_name):
+    try:
+        cnx = getConnection()
+    
+        if cnx.is_connected():
+            print("Connection Successful")
+
+            cursor = cnx.cursor()
+            cursor.execute("UPDATE documents SET date_modified=%s,size=%s,content=%s,doc_name=%s WHERE doc_id=%s;", (date_modified,size,content,doc_name,doc_id))
+            cnx.commit()
+            cursor.close()
+        
+        else:
+            print("Connection Failed")
+    except mysql.connector.Error as e:
+        print("Database connection error: ", e)
+
+    finally:
+        closeConnection(cnx)
 
 def getDocRows(type,id):
     try:

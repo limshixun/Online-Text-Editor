@@ -26,7 +26,7 @@
             <div class="popup-form">
                 <h2>Change Document Name</h2>
                 <label>Document name</label><br>
-                <input type="text" name="DocName" id="DocName" required>
+                <input type="text" name="DocName" id="DocName">
                 <p>When the name is changed, the document will also save automatically, do you want to continue?</p>
                 <div>
                     <input type="submit" name="rename" id="rename" value="Yes">
@@ -54,12 +54,15 @@
 
         let crePopup = document.getElementById("cre-popup")
         let doc_ids = document.getElementById("doc_ids")
+        let docNameInput = document.getElementById('DocName')
 
         function openPopup(){
-            crePopup.classList.add("open-popup")   
+            crePopup.classList.add("open-popup")
+            docNameInput.required = true;
         }
         function closePopup(type){
             crePopup.classList.remove("open-popup")
+            docNameInput.required = false;
         }
     </script>
 </body>
