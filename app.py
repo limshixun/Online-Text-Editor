@@ -369,11 +369,13 @@ def KBOfString(str):
     return (len(str.encode('utf-8'))/1024)
 
 def clearTempFiles():
-    dir = "./temp"
+    dir = './temp'
     files = os.listdir(dir)
+    print(files)
     for f in files:
         if not (f == 'ignore.txt'):
-            filepath = dir + "/" + f
+            filepath = f"./temp/{f}"
+            print(filepath)
             os.remove(filepath)
             print(filepath + " removed")
 
