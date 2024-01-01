@@ -63,15 +63,6 @@ def login():
         # turn password into bytes
         pword = request.form['password'].encode('utf-8')
         
-        '''
-        remember = request.form.get('remember_me')
-
-        if remember:
-            session.permanent = True
-        else:
-            session.permanent = False
-        '''
-        
         # Get the row with the same username as entered
         user_row = getUserRow(username)
 
@@ -153,7 +144,7 @@ def text_editor(doc_id):
                 print("Starting download")
                 saveDoc(date_modified,size,content,doc_id)
                 filename = doc[1] + '.txt'
-                filepath = f"./temp/{filename}"
+                filepath = f"./static/{filename}"
                 content = doc[5]
 
                 # Open the file, write and then close the file in 2 line
@@ -378,7 +369,7 @@ def KBOfString(str):
     return (len(str.encode('utf-8'))/1024)
 
 def clearTempFiles():
-    dir = "./temp"
+    dir = "./static"
     files = os.listdir(dir)
     for f in files:
         filepath = dir + "/" + f
