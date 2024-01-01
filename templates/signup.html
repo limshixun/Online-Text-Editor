@@ -10,13 +10,17 @@
     <h1>Online Text Editor</h1>
     <form class="form-container" action="/signup" method="post">
         <h2>Sign Up</h2>
+        <!--username section-->
         <div>
             <label for="username">Username</label>
             <input type="text" id="username" name="username" autocomplete="on" required>
+            <!--if nameError is not None, show nameError from the flask-->
+            <!--Name error is triggered when the name user entered already exist in the database-->
             {% if nameError %}
             <label class="error">{{ nameError }}</label>
             {% endif %}
         </div>
+        <!--password section-->
         <div>
             <label for="password">Password</label>
             <input type="password" id="password" name="password" autocomplete="off" required>
@@ -26,10 +30,12 @@
             <input type="password" id="confirm" name="confirm" autocomplete="off" required>
             <label id="confirmError" class="error"></label>
             <br>
+            <!--password error is triggered when the password and confirm password does not match-->
             {% if pwError %}
             <label class="error">{{ pwError }}</label> 
             {% endif %}
         </div>
+        <!--buton section-->
         <div class="showpw">
             <input type="checkbox" id="showPassword">
             <label for="showPassword">Show Password</label>
@@ -46,55 +52,73 @@
         const confirmError = document.getElementById('confirmError');
         const createAcc = document.getElementById('createAcc')
 
+        // Add eventListener that change the input type from password to text to show the hidden password and vice versa
         checkbox.addEventListener('change', function () {
         if (checkbox.checked) {
+            // Changing input type to text if the show password checkbox is checked
             password.type = 'text';
             confirm.type = 'text';
         } else {
+            // Changing input type to password if the show password checkbox is unchecked
             password.type = 'password';
             confirm.type = 'password';
         }
         });
 
+        // Add requirements for password in the client side to reduce the work load of server side
+
+        // Making sure that the password and confirm password has the same value
         confirm.addEventListener('input', () => {
+            // If the value for confirm password and password does not match
             if (confirm.value != password.value){
+                // Show error in red label and disable the create Account button
                 confirmError.innerHTML = "Password does not match. Try Again"
                 createAcc.disabled = true
             }else{
+                // Remove the error string and enable the create Account button
                 confirmError.innerHTML = ""
                 createAcc.disabled = false
             }
         });
 
+        // Add requirements for the password. requirements == Include A,a,1 and must >= 10 length
         password.addEventListener('input',() => {
             string = password.value
+            // Combine all the requirements
             requirements = containUpCap(string) & containLowCap(string) & containNum(string) & enoughLen(string)
+            // If requirement met
             if(requirements == true){
+                // remove the error string
                 passwordError.innerHTML = ""
+                // enable create Account button
                 createAcc.disabled = false
+                // remove the disabled-button class for css style
                 createAcc.classList.remove('disabled-button')
-                
             }else{
+                // show the error string
                 passwordError.innerHTML = "Password must include UPPERCASE letter, LOWERCASE letter, Number and total lenght must exceed or equal to 10 "
+                // disable create Account button
                 createAcc.disabled = true
+                // add the disabled-button class for css style
                 createAcc.classList.add('disabled-button')
             }
         })
         
         // from https://plainenglish.io/blog/javascript-check-if-string-contains-uppercase-letters-9a78b69739f6
-        // check if there is any capital letter
+
+        // check if the string has any capital letter
         function containUpCap(string){
             return /[A-Z]/.test(string)
         }
-        
+        // check if the string has any lower case letter
         function containLowCap(string){
             return /[a-z]/.test(string)
         }
-
+        // check if the string has any number
         function containNum(string){
             return /[0-9]/.test(string)
         }
-
+        //check if the string is enough length
         function enoughLen(string){
             return string.length >= 10
         }

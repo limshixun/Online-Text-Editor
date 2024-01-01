@@ -16,8 +16,8 @@
         <div class="menubar flex">
             <button class="box" type="submit" name="save" id="save"><img src="../static/icon/save.png"></button>
             <button class="box" type="submit" name="download" id="download" ><img src="../static/icon/download.png"></button>
-            <button class="box" type="button" name="A+" id="A+" onclick="upFontSize()">A+</button>
-            <button class="box" type="button" name="A-" id="A-" onclick="downFontSize()">A-</button>
+            <button class="box" type="button" name="A+" id="A+" onclick="changeFontSize2(true)">A+</button>
+            <button class="box" type="button" name="A-" id="A-" onclick="changeFontSize2(false)">A-</button>
             <input class="box" type="button" onclick="openPopup()" value="rename">
         </div>
         <textarea class="content" name="content" id="content" autofocus>{{doc[5]}}</textarea>
@@ -27,7 +27,8 @@
                 <h2>Change Document Name</h2>
                 <label>Document name</label><br>
                 <input type="text" name="DocName" id="DocName">
-                <p>When the name is changed, the document will also save automatically, do you want to continue?</p>
+                <p>When the name is changed, the document will save automatically</p>
+                <p>Are you sure you want to continue?</p>
                 <div>
                     <input type="submit" name="rename" id="rename" value="Yes">
                     <button type="button" onclick="closePopup()">Cancel</button>
@@ -38,30 +39,39 @@
     <script>
         let textarea = document.getElementById("content")
 
-        function changeFontSize(size){
+        function changeFontSize2(increase){
+            // Get all the styles of textarea
+            let computedStyle = window.getComputedStyle(textarea);
+            // Get the current font size of textarea
+            let fontSize = parseInt(computedStyle.getPropertyValue("font-size"));
+            // If increase is true, then we add 1 else -1
+            let change = 0
+            if (increase) {
+                change = 1
+            }else{
+                change = -1
+            }
+            let size = fontSize + change
+            // Set the font size of textarea to the final size
             textarea.style.fontSize = `${size}px`;
-        }
-        function upFontSize(){
-            let computedStyle = window.getComputedStyle(textarea);
-            let fontSize = parseInt(computedStyle.getPropertyValue("font-size"));
-            changeFontSize(fontSize+1)
-        }
-        function downFontSize(){
-            let computedStyle = window.getComputedStyle(textarea);
-            let fontSize = parseInt(computedStyle.getPropertyValue("font-size"));
-            changeFontSize(fontSize-1)
         }
 
         let crePopup = document.getElementById("cre-popup")
         let doc_ids = document.getElementById("doc_ids")
         let docNameInput = document.getElementById('DocName')
-
+        // Open popup
         function openPopup(){
+            // Add class with css of visibility = visible
             crePopup.classList.add("open-popup")
+            // Make the input for new document name required only when the popup is open 
+            // so that user is not forced to type in the document name even if the visibiility is hidden 
             docNameInput.required = true;
         }
+        // Clsoe popup
         function closePopup(type){
+            // remove class with css of visibility = visible
             crePopup.classList.remove("open-popup")
+            // Turn required back to false
             docNameInput.required = false;
         }
     </script>

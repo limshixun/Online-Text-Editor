@@ -36,6 +36,7 @@
         const checkbox = document.getElementById('showPassword');
         const password = document.getElementById('password');
         
+        // Add eventListener that change the input type from password to text to show the hidden password and vice versa
         checkbox.addEventListener('change', function () {
         if (checkbox.checked) {
             password.type = 'text';
