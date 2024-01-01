@@ -144,7 +144,7 @@ def text_editor(doc_id):
                 print("Starting download")
                 saveDoc(date_modified,size,content,doc_id)
                 filename = doc[1] + '.txt'
-                filepath = f"./static/{filename}"
+                filepath = f"./temp/{filename}"
                 content = doc[5]
 
                 # Open the file, write and then close the file in 2 line
@@ -369,7 +369,7 @@ def KBOfString(str):
     return (len(str.encode('utf-8'))/1024)
 
 def clearTempFiles():
-    dir = "./static"
+    dir = "./temp"
     files = os.listdir(dir)
     for f in files:
         filepath = dir + "/" + f
