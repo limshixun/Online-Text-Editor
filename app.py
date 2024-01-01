@@ -5,45 +5,54 @@ import os, mysql.connector, bcrypt
 
 app = Flask(__name__)
 
-# Allowing user to not login for 30days, sessio last 30days
+# Allowing user to access without login unless loged out
 app.config["SESSION_PERMANENT"] = False
 # Secret key to encrypt or decrypt session data
 app.config["SESSION_TYPE"] = "filesystem"
+# Secret key for
 app.secret_key = "Secret_Key852"
 
 Session(app)
 
+# Sign up route to create a new user
 @app.route('/signup', methods=["GET","POST"])
 def signup():
     nameError = ""
     pwError = ""
     if request.method == 'POST':
+
         # Get user input
         username = request.form['username']
         password = request.form['password']
         confirm = request.form['confirm']
         
+        # get the user's information from the database
         user_row = getUserRow(username)
 
-        # if username does not exist in db
+        # if username does not exist in db, add new user to the database
         if (not user_row) and (password == confirm):
             addUser(username,password)
             return redirect(url_for('signup_success'))
         
+        # if username already exist
         elif (user_row):
             nameError = "Username already exist. Please try another name"
 
+        # if password and confirm password does not match
         elif not (password == confirm):
             pwError = "Password does not match. Try Again"
 
+    # render signup template for initial render, user already exist and password and confirm password does not match
     return render_template('signup.html', nameError=nameError, pwError = pwError)
 
+# page after sign up successfully
 @app.route('/signup_success',methods=["GET","POST"])
 def signup_success():
     if request.method == 'POST':
         return redirect(url_for('login'))
     return render_template('signup_success.html')
 
+# Login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # Error message
@@ -105,7 +114,7 @@ def manage():
                 delDoc(docs)
 
             elif 'logout' in request.form:
-                session.pop("user_id",None)
+                session.pop("user",None)
                 clearTempFiles()
                 return redirect(url_for("login"))
             

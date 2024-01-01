@@ -79,3 +79,11 @@ a{
 h2[class="center"]{
     font-size: 50px;
 }
+
+.disabled-button{
+    background-color: gray;
+}
+
+.disabled-button:hover{
+    background-color: gray;
+}

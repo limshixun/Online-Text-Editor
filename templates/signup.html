@@ -34,7 +34,7 @@
             <input type="checkbox" id="showPassword">
             <label for="showPassword">Show Password</label>
         </div>
-        <button type="submit">Create Account</button>
+        <button type="submit" id="createAcc">Create Account</button>
         <a href="{{ url_for('login') }}">Already have an account? Sign in</a>
     </form>
 
@@ -42,6 +42,9 @@
         const checkbox = document.getElementById('showPassword');
         const password = document.getElementById('password');
         const confirm = document.getElementById('confirm');
+        const passwordError = document.getElementById('passwordError')
+        const confirmError = document.getElementById('confirmError');
+        const createAcc = document.getElementById('createAcc')
 
         checkbox.addEventListener('change', function () {
         if (checkbox.checked) {
@@ -52,6 +55,49 @@
             confirm.type = 'password';
         }
         });
+
+        confirm.addEventListener('input', () => {
+            if (confirm.value != password.value){
+                confirmError.innerHTML = "Password does not match. Try Again"
+                createAcc.disabled = true
+            }else{
+                confirmError.innerHTML = ""
+                createAcc.disabled = false
+            }
+        });
+
+        password.addEventListener('input',() => {
+            string = password.value
+            requirements = containUpCap(string) & containLowCap(string) & containNum(string) & enoughLen(string)
+            if(requirements == true){
+                passwordError.innerHTML = ""
+                createAcc.disabled = false
+                createAcc.classList.remove('disabled-button')
+                
+            }else{
+                passwordError.innerHTML = "Password must include UPPERCASE letter, LOWERCASE letter, Number and total lenght must exceed or equal to 10 "
+                createAcc.disabled = true
+                createAcc.classList.add('disabled-button')
+            }
+        })
+        
+        // from https://plainenglish.io/blog/javascript-check-if-string-contains-uppercase-letters-9a78b69739f6
+        // check if there is any capital letter
+        function containUpCap(string){
+            return /[A-Z]/.test(string)
+        }
+        
+        function containLowCap(string){
+            return /[a-z]/.test(string)
+        }
+
+        function containNum(string){
+            return /[0-9]/.test(string)
+        }
+
+        function enoughLen(string){
+            return string.length >= 10
+        }
     </script>
 </body>
 </html>
