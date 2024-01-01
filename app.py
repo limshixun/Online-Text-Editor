@@ -372,9 +372,10 @@ def clearTempFiles():
     dir = "./temp"
     files = os.listdir(dir)
     for f in files:
-        filepath = dir + "/" + f
-        os.remove(filepath)
-        print(filepath + " removed")
+        if not (f == 'ignore.txt'):
+            filepath = dir + "/" + f
+            os.remove(filepath)
+            print(filepath + " removed")
 
 def getCurrentDateTime():
     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
