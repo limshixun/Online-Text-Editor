@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>text_editor</title>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='text_editor.css') }}">
+    
 </head>
 <body>
     <form class="container" id="editor" method="post" action="{{url_for('text_editor', doc_id=doc[0])}}">
         <div class="title flex">
-            <h1>Title : {{doc[1]}}</h2>
             <input type="submit" name="home" id="home" value="HOME">
+            <h1>Title: {{doc[1]}}</h2>
             <input class="warning" type="submit" name="logout" id="logout" value="Log out">
         </div>
         <div class="menubar flex">
@@ -27,6 +28,7 @@
                 <h2>Change Document Name</h2>
                 <label>Document name</label><br>
                 <input type="text" name="DocName" id="DocName">
+                <label class="rename-error" id="rename-error"></label>
                 <p>When the name is changed, the document will save automatically</p>
                 <p>Are you sure you want to continue?</p>
                 <div>
@@ -38,6 +40,7 @@
     </form>
     <script>
         let textarea = document.getElementById("content")
+        let currentTitle = '{{doc[1]}}'
 
         function changeFontSize2(increase){
             // Get all the styles of textarea
@@ -59,6 +62,9 @@
         let crePopup = document.getElementById("cre-popup")
         let doc_ids = document.getElementById("doc_ids")
         let docNameInput = document.getElementById('DocName')
+        let renameInput = document.getElementById('rename')
+        let renameErr = document.getElementById("rename-error")
+
         // Open popup
         function openPopup(){
             // Add class with css of visibility = visible
@@ -74,6 +80,18 @@
             // Turn required back to false
             docNameInput.required = false;
         }
+
+        docNameInput.addEventListener("input" , () =>{
+            if(docNameInput.value == currentTitle){
+                renameInput.disabled = true
+                renameInput.classList.add("disabled-btn")
+                renameErr.innerHTML = "New document name cannot be the same as the current name"
+            }else{
+                renameInput.disabled = false
+                renameInput.classList.remove("disabled-btn")
+                renameErr.innerHTML = ""
+            }
+        })
     </script>
 </body>
 </html>

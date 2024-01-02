@@ -11,8 +11,8 @@
     <br>
     <form class="container" id="manageDoc" method="post" action="/">
         <div class="menu">
-            <button type="button" onclick="openPopup('cre')">Create new file</button>
-            <button class="btn-disabled warning" type="button" id="delBtn" onclick="openPopup('del')" disabled>Delete selected files</button>
+            <button type="button" onclick="openPopup('cre')">Create new file    +</button>
+            <button class="btn-disabled warning" type="button" id="delBtn" onclick="openPopup('del')" disabled>Delete selected files    -</button>
             <input class="warning" type="submit" name="logout" id="logout" value="Log out">
         </div>
         <table class="table-container" id="doc-table">
@@ -21,15 +21,15 @@
                     <th> </th>
                     <th class="flex">
                         <label>Title</label>
-                        <button type="button" id="title" class="box sort"><img src="../static/icon/up-down.png"></button>
+                        <button type="button" id="title" class="box sort" onclick="sortTable(1)"><img src="../static/icon/up-down.png"></button>
                     </th>
                     <th class="flex" >
                         <label>Date Modified</label>
-                        <button type="button" id="date" class="box sort"><img src="../static/icon/up-down.png"></button>
+                        <button type="button" id="date" class="box sort" onclick="sortTable(2)"><img src="../static/icon/up-down.png" ></button>
                     </th>
                     <th class="flex">
                         <label>Size (KB)</label>
-                        <button type="button" id="size" class="box sort"><img src="../static/icon/up-down.png"></button>
+                        <button type="button" id="size" class="box sort" onclick="sortTable(3)"><img src="../static/icon/up-down.png"></button>
                     </th>
                 </tr>
             </thead>
@@ -37,7 +37,7 @@
                 {% for doc in documents %}
                     <tr>
                         <td><input type="checkbox" name="{{doc[0]}}" id="{{doc[0]}}" value="{{doc[0]}}"></td>
-                        <td><a class="file-link" href="{{ url_for('text_editor', doc_id=doc[0]) }}" >{{ doc[1] }}</a></td>
+                        <td><a class="file-link" name="{{ doc[1] }}" href="{{ url_for('text_editor', doc_id=doc[0]) }}" >{{ doc[1] }}</a></td>
                         <td>{{doc[3]}}</td>
                         <td>{{doc[4]}}</td>
                     </tr>
@@ -149,8 +149,8 @@
             checkbox.addEventListener("change", enableDelBtn);
         });
 
-        ////// For sorting table, have not been fully implemented //////
-
+        
+        // Change the sort button icon based on different type
         function setSortImage(button,type){
             let imgElem = button.querySelector('img')
             if (type == "neutral"){
@@ -164,6 +164,7 @@
             }
         }
 
+        // Reset all the sort button icon back to neutral
         function resetSort(){
             sortButtons.forEach((button) => {
                 setSortImage(button,"neutral")
@@ -172,15 +173,17 @@
 
         function changeDiagram(button){
             let imgElem = button.querySelector('img')
+            // Get the current icon src
             let src = imgElem.src;
+            // Reset after getting the previous icon src so i will not disturb the change
             resetSort()
-            console.log(src)
+            // neutral --> desc --> asc --> desc --> asc ......
             if (src.includes("up-down.png")) {
                 setSortImage(button, "descending");
             } else if (src.includes("down-arrow.png")) {
                 setSortImage(button, "ascending");
             } else if (src.includes("up-arrow.png")) {
-                setSortImage(button, "neutral");
+                setSortImage(button, "descending");
             } else {
                 throw Error("Error in changeDiagram()");
             }
@@ -188,15 +191,72 @@
 
         sortButtons.forEach((button) => {
             button.addEventListener("click", () => {
-                console.log(button)
                 changeDiagram(button)
             });
         })
         
-        let table = document.getElementById("doc-table") 
+        let ascending = NaN
 
-        function sortTable(){
+        // Switch order of sorting
+        function changeAscending(){
+            if(ascending ==NaN){
+                // The First order after neutral is Ascending
+                ascending = true
+            }else{
+                ascending = !ascending
+            }
+        }
 
+        // idea from https://www.w3schools.com/howto/howto_js_sort_table.asp
+        function sortTable(colNum){
+            let table = document.getElementById("doc-table")
+            let sorting = true
+            let switchcount = 0
+            let shouldSwitch, rows, currentRowData, nextRowData
+            changeAscending()
+            while (sorting) {
+                sorting = false
+                // return an arr of tr (table row) element
+                rows = table.rows
+                // Excluding header row where i==0, we compare the value of table data in specific column (colNum)
+                // In this for loop, we only check if row i will switch with i+1
+                // If we need to switch row i and i + 1, we will first break the for loop then switch the row.
+                // If none of the row need swtiching, end the sorting
+                for ( i = 1; i < (rows.length - 1); i++) {
+                    // Get the table data of current row and next row
+                    currentRowData = rows[i].getElementsByTagName("td")[colNum];
+                    nextRowData = rows[i+1].getElementsByTagName("td")[colNum];
+
+                    // Default as should not switch 
+                    shouldSwitch = false;
+
+                    // Since the innerHtml of the first column is an achor, we will further dig into the innerHTML of the anchor to get the text 
+                    if(colNum == 1){
+                        // set the anchor element as the current element
+                        currentRowData = currentRowData.querySelector('.file-link')
+                        nextRowData = nextRowData.querySelector('.file-link')
+                    }
+
+                    //check if the two rows should switch place
+                    if (ascending) {
+                        // In ascending orderIf current data is greater than next data
+                        shouldSwitch = (currentRowData.innerHTML.toLowerCase()) > (nextRowData.innerHTML.toLowerCase())
+                    }else{
+                        // If current data is lesser than next data
+                        shouldSwitch = (currentRowData.innerHTML.toLowerCase()) < (nextRowData.innerHTML.toLowerCase())
+                    }
+                    // If any of the row needed to be switch, break the loop so that we can switch them
+                    if(shouldSwitch){
+                        break;
+                    }
+                }
+                if(shouldSwitch){
+                    // In this line, we first access the parent of tr which is tbody
+                    // then switch the row with insertBefore method
+                    rows[i].parentNode.insertBefore(rows[i+1], rows[i]);
+                    sorting = true
+                }
+            }
         }
     </script>
 </body>

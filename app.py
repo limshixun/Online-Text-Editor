@@ -150,6 +150,8 @@ def text_editor(doc_id):
                 saveDoc(date_modified,size,content,doc_id)
                 # Get new updated doc
                 doc = getDocRows("doc_id",doc_id)[0]
+                # Redirect back to the same page so that we dont have to re render the whole page after saving, also retain the state of the page
+                return redirect(url_for("text_editor", doc_id=doc_id))
 
             # When form is submitted by save input OR button
             elif 'logout' in request.form:
@@ -180,6 +182,7 @@ def text_editor(doc_id):
                 new_name = request.form.get("DocName")
                 renameTitle(date_modified, size, content, doc_id, new_name)
                 doc = getDocRows("doc_id",doc_id)[0]
+                return redirect(url_for("text_editor", doc_id=doc_id))
 
 
         return render_template("text_editor.html", doc=doc)

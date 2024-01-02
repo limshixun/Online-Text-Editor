@@ -1,10 +1,11 @@
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f3f2f2;
+    background-color: #eeeeee;
 }
-
 h1{
     text-align: center;
+    color: black;
+    margin: 50px;
 }
 
 .menu input.warning {
@@ -60,15 +61,17 @@ th,td {
     border: 1px solid #ebebeb;
     padding: 8px;
     text-align: left;
+    font-size: large;
 }
 
 th {
-    background-color: #cecece;
+    background-color: #809dc2;
     font-weight: bold;
+    font-size: larger;
 }
 
 tr:nth-child(even) {
-    background-color: #ffffff;
+    background-color: rgba(171, 182, 218, 0.267)
 }
 
 th:first-child {
@@ -134,6 +137,11 @@ td a.file-link{
     color: #227dd9;
 }
 
+td a.file-link:hover{
+    text-decoration: underline;
+    color: #1b62a8;
+}
+
 th button.box{
     margin-left: auto;
     background-color: transparent;
@@ -150,3 +158,4 @@ th button.box img{
 th button.box img:hover{
     background-color: #e7e6e6e3;
 }
+
