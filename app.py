@@ -395,7 +395,7 @@ def getCurrentDateTime():
 def getConnection():
     # This connection function can be found under settings of Azure Database for Mysql server
     try:
-        cnx = mysql.connector.connect(user="limshixun", password="Mysql1475963!@#", host="onlinete.mysql.database.azure.com",
+        cnx = mysql.connector.connect(user="limshixun", password="Mysql1475963!@#", host="onlinete-db-server.mysql.database.azure.com",
                                       port=3306, database="text_editor", ssl_ca="./cert/DigiCertGlobalRootCA.crt.pem", ssl_disabled=False)
         return cnx
     # Handle exception
