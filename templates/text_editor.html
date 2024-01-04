@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>text_editor</title>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static', filename='text_editor.css') }}">
-    
 </head>
 <body>
     <form class="container" id="editor" method="post" action="{{url_for('text_editor', doc_id=doc[0])}}">
@@ -22,7 +21,6 @@
             <input class="box" type="button" onclick="openPopup()" value="rename">
         </div>
         <textarea class="content" name="content" id="content" autofocus>{{doc[5]}}</textarea>
-
         <div class="popup-container" id="cre-popup">
             <div class="popup-form">
                 <h2>Change Document Name</h2>
@@ -50,9 +48,9 @@
             // If increase is true, then we add 1 else -1
             let change = 0
             if (increase) {
-                change = 1
+                change = 4
             }else{
-                change = -1
+                change = -4
             }
             let size = fontSize + change
             // Set the font size of textarea to the final size

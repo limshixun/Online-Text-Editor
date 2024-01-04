@@ -21,15 +21,15 @@
                     <th> </th>
                     <th class="flex">
                         <label>Title</label>
-                        <button type="button" id="title" class="box sort" onclick="sortTable(1)"><img src="../static/icon/up-down.png"></button>
+                        <button type="button" id="title" class="box sort" colNum="1"><img src="../static/icon/up-down.png"></button>
                     </th>
                     <th class="flex" >
                         <label>Date Modified</label>
-                        <button type="button" id="date" class="box sort" onclick="sortTable(2)"><img src="../static/icon/up-down.png" ></button>
+                        <button type="button" id="date" class="box sort" colNum="2"><img src="../static/icon/up-down.png" ></button>
                     </th>
                     <th class="flex">
                         <label>Size (KB)</label>
-                        <button type="button" id="size" class="box sort" onclick="sortTable(3)"><img src="../static/icon/up-down.png"></button>
+                        <button type="button" id="size" class="box sort" colNum="3"><img src="../static/icon/up-down.png"></button>
                     </th>
                 </tr>
             </thead>
@@ -67,6 +67,7 @@
             <input type="hidden" name="doc_ids" id="doc_ids" value="">
             <div>
                 <input type="submit" name="ConfirmDel" id="ConfirmDel" value="Yes" required>
+                <!--A type button is used for cancelling the delete instead of type submit to prevent the form from being submitted when cancel is pressed-->
                 <button type="button" onclick="closePopup('del')">Cancel</button>
             </div>
         </form>
@@ -139,7 +140,6 @@
                 delBtn.disabled = true; 
                 // add the style for disabled button
                 delBtn.classList.add("btn-disabled")
-
             }
         }
 
@@ -179,10 +179,13 @@
             resetSort()
             // neutral --> desc --> asc --> desc --> asc ......
             if (src.includes("up-down.png")) {
+                changeAscending(false)
                 setSortImage(button, "descending");
             } else if (src.includes("down-arrow.png")) {
+                changeAscending(true)
                 setSortImage(button, "ascending");
             } else if (src.includes("up-arrow.png")) {
+                changeAscending(false)
                 setSortImage(button, "descending");
             } else {
                 throw Error("Error in changeDiagram()");
@@ -191,29 +194,24 @@
 
         sortButtons.forEach((button) => {
             button.addEventListener("click", () => {
+                colNum = button.getAttribute("colNum")
                 changeDiagram(button)
+                sortTable(colNum)
             });
         })
         
-        let ascending = NaN
+        let ascending=NaN
 
         // Switch order of sorting
-        function changeAscending(){
-            if(ascending ==NaN){
-                // The First order after neutral is Ascending
-                ascending = true
-            }else{
-                ascending = !ascending
-            }
+        function changeAscending(bool){
+            ascending = bool
         }
 
         // idea from https://www.w3schools.com/howto/howto_js_sort_table.asp
         function sortTable(colNum){
             let table = document.getElementById("doc-table")
             let sorting = true
-            let switchcount = 0
             let shouldSwitch, rows, currentRowData, nextRowData
-            changeAscending()
             while (sorting) {
                 sorting = false
                 // return an arr of tr (table row) element
@@ -229,14 +227,13 @@
 
                     // Default as should not switch 
                     shouldSwitch = false;
-
                     // Since the innerHtml of the first column is an achor, we will further dig into the innerHTML of the anchor to get the text 
                     if(colNum == 1){
                         // set the anchor element as the current element
                         currentRowData = currentRowData.querySelector('.file-link')
                         nextRowData = nextRowData.querySelector('.file-link')
                     }
-
+                    
                     //check if the two rows should switch place
                     if (ascending) {
                         // In ascending orderIf current data is greater than next data

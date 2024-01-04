@@ -96,7 +96,7 @@
                 createAcc.classList.remove('disabled-button')
             }else{
                 // show the error string
-                passwordError.innerHTML = "Password must include UPPERCASE letter, LOWERCASE letter, Number and total lenght must exceed or equal to 10 "
+                passwordError.innerHTML = "Password must include UPPERCASE letter, LOWERCASE letter, Number and total length must exceed or equal to 10 "
                 // disable create Account button
                 createAcc.disabled = true
                 // add the disabled-button class for css style
@@ -107,21 +107,13 @@
         // from https://plainenglish.io/blog/javascript-check-if-string-contains-uppercase-letters-9a78b69739f6
 
         // check if the string has any capital letter
-        function containUpCap(string){
-            return /[A-Z]/.test(string)
-        }
+        function containUpCap(string){return /[A-Z]/.test(string)}
         // check if the string has any lower case letter
-        function containLowCap(string){
-            return /[a-z]/.test(string)
-        }
+        function containLowCap(string){return /[a-z]/.test(string)}
         // check if the string has any number
-        function containNum(string){
-            return /[0-9]/.test(string)
-        }
+        function containNum(string){return /[0-9]/.test(string)}
         //check if the string is enough length
-        function enoughLen(string){
-            return string.length >= 10
-        }
+        function enoughLen(string){return string.length >= 10}
     </script>
 </body>
 </html>

@@ -12,14 +12,11 @@
         <h2 class="title">Sign In</h2>
         <div>
             <label>Username</label> 
-            <br>
             <input type="text" id="username" name="username" autocomplete="on" required>
         </div>
         <div>
             <label>Password</label>
-            <br>
             <input type="password" id="password" name="password" autocomplete="off" required>
-            <br>
             {% if message %}
             <label class="error">{{ message }}</label>
             {% endif %}

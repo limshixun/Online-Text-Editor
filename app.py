@@ -71,7 +71,7 @@ def login():
         # Get the row with the same username as entered
         user_row = getUserRow(username)
 
-        # If username exist
+        # If username exist in the database
         if user_row:
 
             # retrieve data from tuple
@@ -87,7 +87,7 @@ def login():
                 return redirect(url_for('manage'))
             
         # If there is no user_row or password does not match
-        message="Invalid Username or Password"    
+        message="Invalid Username or Password" 
     
     # GET request
     return render_template('login.html', message=message)
@@ -95,8 +95,6 @@ def login():
 # Home route, mainly for managing documents
 @app.route('/', methods=['GET', 'POST'])
 def manage():
-
-    print(session)
     # If a session exist
     if "user" in session:
 
@@ -108,7 +106,7 @@ def manage():
 
         if request.method == 'POST':
             
-            # When submit button OR input with ConfirmDel is submitted
+            # When When form consist of elem with ConfirmDel 
             if 'ConfirmDel' in request.form:
                 # Get all the doc_ids that is selected
                 selectedDocs = request.form.get("doc_ids")
@@ -116,12 +114,12 @@ def manage():
                 docs = selectedDocs.split(",")
                 delDoc(docs)
 
-            # When submit button OR input with logout is submitted
+            # When When form consist of elem with logout 
             elif 'logout' in request.form:
                 logout()
                 return redirect(url_for("login"))
             
-            # When submit button OR input with createDoc is submitted
+            # When When form consist of elem with createDoc 
             elif 'createDoc' in request.form:
                 docName = request.form.get('DocName')
                 addDoc(docName,user_id)
@@ -136,7 +134,6 @@ def manage():
 def text_editor(doc_id):
     # If user session does not exist, redirect back to login to prevent access from typing manually from URL
     if "user" in session:
-        
         # Get the document's information, we get the first element because getDocRows uses fetchall that return more than one doc
         doc = getDocRows("doc_id",doc_id)[0]
         if request.method == 'POST':
@@ -144,8 +141,8 @@ def text_editor(doc_id):
             date_modified = getCurrentDateTime()
             content = request.form.get("content")
             size = KBOfString(content)
-
-            # When form is submitted by save input OR button
+            print(request.form)
+            # When form consist of elem with save 
             if 'save' in request.form:
                 saveDoc(date_modified,size,content,doc_id)
                 # Get new updated doc
@@ -153,34 +150,32 @@ def text_editor(doc_id):
                 # Redirect back to the same page so that we dont have to re render the whole page after saving, also retain the state of the page
                 return redirect(url_for("text_editor", doc_id=doc_id))
 
-            # When form is submitted by save input OR button
+            # When form consist of any elem with logout 
             elif 'logout' in request.form:
                 logout()
                 return redirect(url_for("login"))
             
-            # When form is submitted by save input OR button
+            # When form consist of any elem with download
             elif 'download' in request.form:
                 print("Starting download")
-                saveDoc(date_modified,size,content,doc_id)
 
                 # Create file path and get document's content 
                 filename = doc[1] + '.txt'
                 filepath = f"./temp/{filename}"
-                content = doc[5]
 
                 # Open the file, write and then close the file in 2 line
                 with open(filepath, "w") as fo:
                     fo.write(content)
                     fo.close()
-
-                return redirect(url_for("download",filepath=filepath))
+                    
+                return send_file(filepath, as_attachment=True)
             
             elif "home" in request.form:
                 return redirect(url_for("manage"))
             
             elif "rename" in request.form:
                 new_name = request.form.get("DocName")
-                renameTitle(date_modified, size, content, doc_id, new_name)
+                renameTitle(date_modified,size,content,doc_id,new_name)
                 doc = getDocRows("doc_id",doc_id)[0]
                 return redirect(url_for("text_editor", doc_id=doc_id))
 
@@ -191,13 +186,12 @@ def text_editor(doc_id):
     # This way, 
     return redirect(url_for("login"))
 
-# Downlaod the file in the temp dir
-@app.route("/download/<path:filepath>", methods=['GET', 'POST'])
-def download(filepath):
-    print("Downloading: ", filepath)
-
-    # This will start the download
-    return send_file(filepath, as_attachment=True)
+# # Downlaod the file in the temp dir
+# @app.route("/download/<path:filepath>", methods=['GET', 'POST'])
+# def download(filepath):
+#     print("Downloading: ", filepath)
+#     # This will start the download
+#     return send_file(filepath, as_attachment=True)
 
 # Function that checkif user name already exist in the database or not
 def user_exist(users,name,pword):
@@ -238,6 +232,7 @@ def addUser(username,pword):
 
 def addDoc(doc_name,user_id):
     content = ""
+    # Convert string into byte
     size = KBOfString(content)
     date_modified = getCurrentDateTime()
     query = "INSERT INTO documents (doc_name, user_id, date_modified, size, content) VALUES (%s,%s,%s,%s,%s)"
@@ -246,36 +241,15 @@ def addDoc(doc_name,user_id):
 
 # Remove document row based on the doc_ids
 def delDoc(doc_ids):
-        try:
-            cnx = getConnection()
-        
-            if cnx.is_connected():
-                cursor = cnx.cursor()
-                print(doc_ids)
-                # Build a query to delete multiple rows at the same time
-                query = ""
-                for id in doc_ids:
-                    query = query + "doc_id = " + id + " OR "
-
-                # remove the last OR
-                query = query.rstrip(" OR ")
-
-                # Build the full query
-                full_query = f"DELETE FROM documents WHERE {query}"
-
-                cursor.execute(full_query)
-
-                # Update the table
-                cnx.commit()
-                cursor.close
-            
-            else:
-                print("Connection Failed")
-        except mysql.connector.Error as e:
-            print("Database connection error: ", e)
-            
-        finally:
-            closeConnection(cnx)
+    # Build a query to delete multiple rows at the same time
+    query = ""
+    for id in doc_ids:
+        query = query + "doc_id = " + id + " OR "
+    # Remove the last OR
+    query = query.rstrip(" OR ")
+    # Build the full query
+    full_query = f"DELETE FROM documents WHERE {query}"
+    executeQuery(full_query,None)
 
 def executeQuery(query,params):
     # Start connection
@@ -287,20 +261,23 @@ def executeQuery(query,params):
             print("Connection Successful")
             # Create a cursor
             cursor = cnx.cursor()
-            # Execute the query to update the database
-            cursor.execute(query,params)
+            # If there is no parameter, just execute the query without parameter
+            if params == None:
+                # Execute the query to update the database
+                cursor.execute(query)
+            else:
+                # Execute the query to update the database
+                cursor.execute(query,params)
             # Commit the execution to update the table
             cnx.commit()
             # Close the cursor
             cursor.close()
-        
         # If connection Failed
         else:
             print("Connection Failed")
     # Handle exception
     except mysql.connector.Error as e:
         print("Database connection error: ", e)
-
     # Close the connection at the end
     finally:
         closeConnection(cnx)
@@ -310,7 +287,6 @@ def getDocRows(type,id):
     try:
         # Get connection
         cnx = getConnection()
-
         if cnx.is_connected():
             print("Connection Successful")
 
@@ -330,7 +306,6 @@ def getDocRows(type,id):
             cursor.close()
             # Return the documents 
             return doc_rows
-        
         else:
             print("Connection Failed")
     # Handle exception
@@ -342,8 +317,9 @@ def getDocRows(type,id):
 # Get one single user row
 def getUserRow(username):
     try:    
+        # Create a connection
         cnx = getConnection()
-    
+        # If connection success
         if cnx.is_connected():
             print("Connection Successful")
             # Create cursor
@@ -354,7 +330,6 @@ def getUserRow(username):
             user_row = cursor.fetchone()
             # Close the cursor
             cursor.close()
-
             if not user_row:
                 # Handle cases when user doesn't exist
                 return None
