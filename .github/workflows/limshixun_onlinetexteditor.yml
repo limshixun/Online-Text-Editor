@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'onlinetexteditor'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_05C4A61DEE5B44D3AD8A0CDFFA8F4CF8 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B785461FE2BA4C89A3A2927766B7F069 }}
